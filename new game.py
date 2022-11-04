@@ -4,7 +4,9 @@ from pygame.locals import *
 pygame.init()
 ventana = pygame.display.set_mode((800,700))
 pygame.display.set_caption("Hola mundo")
-#Fondo=(225,22
+#Fuentes
+aux=0
+Fuente=pygame.font.SysFont("Arial",30)
 Cannon_img= pygame.image.load("img/cannon.webp")
 
 #Se agrega Cañon
@@ -13,11 +15,15 @@ posX,posY=350,610
 
 #Velocidad
 velocidad=15
-#
+
 
 while True:
     ventana.fill((225,225,225))
     ventana.blit(New_Cannon_img,(posX,posY))
+    Tiempo=pygame.time.get_ticks()//1000
+    if aux==Tiempo:
+        aux+=1
+    #Eventos
     for event in pygame.event.get():
         if event.type == QUIT :
             pygame.quit()
@@ -27,6 +33,10 @@ while True:
                 posX-=velocidad
             elif event.key==K_RIGHT:
                 posX+=velocidad
+
+    #Contador
+    contador=Fuente.render("Tiempo: "+str(Tiempo),0,(120,70,0))
+    ventana.blit(contador,(630,0))
 
 
 
