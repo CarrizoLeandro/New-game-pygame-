@@ -1,6 +1,6 @@
 import pygame, sys
 from pygame.locals import *
-#Cariable Globales
+#Variable Globales
 ancho= 900
 alto =480
 
@@ -28,8 +28,9 @@ class naveEspacial(pygame.sprite.Sprite):
                 self.rect.right= 840
         
 
-    def disparar(self):
-        print ("Disparo")
+    def disparar(self,x,y):
+        miProyectil=proyectil(x,y)
+        self.listaDisparo.append(miProyectil)
     def dibujar (self, superficie):
         superficie.blit(self.ImagenNave,self.rect)
 
@@ -40,7 +41,7 @@ class proyectil (pygame.sprite.Sprite):
         self.imageProyectil = pygame.image.load("img/disparoa.jpg")
         self.rect = self.imageProyectil.get_rect()
 
-        self.velocidadDisparo = 0.1
+        self.velocidadDisparo = 1
 
         self.rect.top=posy
         self.rect.left=posx
@@ -64,7 +65,6 @@ def SpaceInvader():
         #Eventos
         venta.fill((0,0,0))
         jugador.movimiento()
-        DemoProyectil.trayectoria()
         for evento in pygame.event.get():
             if evento.type == QUIT :
                 pygame.quit()
@@ -75,10 +75,16 @@ def SpaceInvader():
                         jugador.rect.left -= jugador.velocidad
                     elif evento.key == K_RIGHT:
                         jugador.rect.right += jugador.velocidad
-                    elif evento.key == K_BACKSPACE:
-                        jugador.disparar()
-        DemoProyectil.dibujar(venta)
+                    elif evento.key == K_SPACE:
+                        x,y=jugador.rect.center
+                        jugador.disparar((x-5),(y-50))
         jugador.dibujar(venta)
+        if len(jugador.listaDisparo)>0:
+            for x in jugador.listaDisparo:
+                x.dibujar(venta)
+                x.trayectoria()
+                if x.rect.top <0:
+                    jugador.listaDisparo.remove(x)
         pygame.display.update()
 
 SpaceInvader()
