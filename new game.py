@@ -20,7 +20,15 @@ class naveEspacial(pygame.sprite.Sprite):
 
         self.velocidad = 20
 
-    def movimiento(self):
+    def movimientoDerecha(self):
+        self.rect.right += self.velocidad
+        self.__movimiento()
+
+    def movimientoIzquierda(self):
+        self.rect.left -= self.velocidad
+        self.__movimiento()
+
+    def __movimiento(self):
         if self.Vida == True:
             if self.rect.left <= 0:
                 self.rect.left=0
@@ -41,7 +49,7 @@ class proyectil (pygame.sprite.Sprite):
         self.imageProyectil = pygame.image.load("img/disparoa.jpg")
         self.rect = self.imageProyectil.get_rect()
 
-        self.velocidadDisparo = 1
+        self.velocidadDisparo = 3
 
         self.rect.top=posy
         self.rect.left=posx
@@ -49,6 +57,41 @@ class proyectil (pygame.sprite.Sprite):
         self.rect.top=self.rect.top - self.velocidadDisparo
     def dibujar(self,superficie):
         superficie.blit(self.imageProyectil,self.rect)
+
+class Invasor (pygame.sprite.Sprite):
+    def __init__(self, posx,posy):
+        pygame.sprite.Sprite.__init__(self)
+
+        self.imagenA = pygame.image.load("img/MarcianoA.jpg")
+        self.imagenB = pygame.image.load("img/MarcianoB.jpg")
+
+        self.listaImagenes=[self.imagenA,self.imagenB]
+        self.posImagen = 0
+
+        self.imagenInvasor = self.listaImagenes[self.posImagen]
+        self.rect = self.imagenInvasor.get_rect()
+
+        self.listaDisparo=[]
+        self.velocidadDisparo = 20
+        self.rect.top=posy
+        self.rect.left=posx
+
+        self.tiempoCambio =0
+
+
+        
+    def trayectoria(self):
+        self.rect.top=self.rect.top - self.velocidadDisparo
+    def dibujar(self,superficie):
+        self.imagenInvasor = self.listaImagenes[self.posImagen]
+        superficie.blit(self.imagenInvasor,self.rect)
+    def comportamiento (self,tiempo):
+        if self.tiempoCambio == tiempo:
+            self.posImagen +=1
+            self.tiempoCambio+=1
+            if self.posImagen > len(self.listaImagenes)-1:
+                self.posImagen=0
+            
 
 #Inicio de ventana
 def SpaceInvader(): 
@@ -58,13 +101,15 @@ def SpaceInvader():
     jugador= naveEspacial()
 
     DemoProyectil= proyectil(ancho/2, alto-30)
-
+    enemigo=Invasor(100,100)
     enJuego= True
+    reloj=pygame.time.Clock()
 
     while True:
         #Eventos
         venta.fill((0,0,0))
-        jugador.movimiento()
+        reloj.tick(60)
+        tiempo=pygame.time.get_ticks()//1000
         for evento in pygame.event.get():
             if evento.type == QUIT :
                 pygame.quit()
@@ -72,13 +117,15 @@ def SpaceInvader():
             if enJuego==True:
                 if evento.type == pygame.KEYDOWN:
                     if evento.key == K_LEFT:
-                        jugador.rect.left -= jugador.velocidad
+                        jugador.movimientoIzquierda()
                     elif evento.key == K_RIGHT:
-                        jugador.rect.right += jugador.velocidad
+                        jugador.movimientoDerecha()
                     elif evento.key == K_SPACE:
                         x,y=jugador.rect.center
                         jugador.disparar((x-5),(y-50))
         jugador.dibujar(venta)
+        enemigo.dibujar(venta)
+        enemigo.comportamiento(tiempo)
         if len(jugador.listaDisparo)>0:
             for x in jugador.listaDisparo:
                 x.dibujar(venta)
